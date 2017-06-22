@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginRight="50dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginBottom="10dp"
+    android:orientation="horizontal"
+    android:layoutDirection="rtl"
+    android:layout_alignParentRight="true">
+    <ImageView
+        android:id="@+id/ivChatAvatar"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/no_img_user"/>
+    <ImageView
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="-1dp"
+        android:layout_marginRight="5dp"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:src="@drawable/arrow_bg_self"/>
+    <TextView
+        android:id="@+id/tvMessage"
+        android:layout_marginTop="5dp"
+        android:padding="10dp"
+        android:textSize="15sp"
+        android:layoutDirection="ltr"
+        android:textColor="@color/colorWhite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/layout_bg_msg_self"
+        android:text="s "/>
+</LinearLayout>

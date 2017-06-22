@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_taxi"
+            android:icon="@drawable/taxi"
+            android:title="Đặt xe" />
+        <item
+            android:id="@+id/nav_support"
+            android:icon="@drawable/chat"
+            android:title="Hỗ trợ" />
+        <item
+            android:id="@+id/nav_history"
+            android:icon="@drawable/history"
+            android:title="Lịch sử" />
+        <item
+            android:id="@+id/nav_promotion"
+            android:icon="@drawable/gift_card"
+            android:title="Khuyến mãi" />
+    </group>
+
+    <group android:title="Tài khoản">
+        <menu>
+            <item
+                android:id="@+id/nav_user_info"
+                android:icon="@drawable/user"
+                android:title="Thông tin" />
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/logout"
+                android:title="Thoát" />
+        </menu>
+    </group>
+
+</menu>

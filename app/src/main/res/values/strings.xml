@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">Taxi Nhanh Driver</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="username">Địa chỉ E-mail</string>
+    <string name="password">Mật khẩu</string>
+    <string name="fullname">Họ tên</string>
+    <string name="repeat_password">Nhập lại mật khẩu</string>
+    <string name="phone_number">Số điện thoại</string>
+    <string name="pickup">ĐIỂM ĐÓN KHÁCH</string>
+    <string name="dropoff">ĐIỂM TRẢ KHÁCH</string>
+    <string name="please_choose_dropoff">Vui lòng chọn điểm trả khách</string>
+    <string name="write_a_message">Nhập tin nhắn...</string>
+    <string name="lng_pickUp">Điểm đi:</string>
+    <string name="lng_dropOff">Điểm đến:</string>
+    <string name="auth_failed">Vui lòng kiểm tra lại thông tin đăng nhập</string>
+    <string name="auth_success">Đăng nhập thành công</string>
+
+    <string name="socket_url">http://thesisk13.ddns.net:3003</string>
+    <string name="socket_chat_url">http://thesisk13.ddns.net:3001</string>
+    <string name="DRIVER_JOIN">DRIVER_JOINS</string>
+    <string name="DRIVER_REQUESTION">DRIVER_REQUESTION</string>
+    <string name="DRIVER_REQUESTION_RESULT">DRIVER_REQUESTION_RESULT</string>
+
+    <string name="where_you_go">Bạn đi đâu</string>
+    <string name="register">ĐĂNG KÝ</string>
+    <string name="full_name">HỌ TÊN</string>
+    <string name="email">E-mail</string>
+
+    <string name="db_child_phone_number">PhoneNumbers</string>
+    <string name="register_successful">Đăng ký thành công</string>
+    <string name="register_failed">Có lỗi xảy ra, vui lòng thử lại sau</string>
+    <string name="password_not_match">Nhập lại mật khẩu không chính xác, vui lòng thử lại</string>
+    <string name="plz_provide_email_or_password">Vui lòng nhập Email và Mật khẩu</string>
+    <string name="plz_provide_full_register_info">Vui lòng cung cấp đủ thông tin đăng ký</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="current_place">Địa điểm của bạn</string>
+    <string name="url_nofitication">http://thesishcmus-huongthu.c9users.io:8080/nofitications/customers</string>
+    <string name="JOIN_CHAT">JOIN_CHAT</string>
+    <string name="MESSAGE">MESSAGE</string>
+    <string name="go_to_queue_zone">Đặt xe thành công, vui lòng đi đến địa điểm xếp hàng</string>
+    <string name="logout">THOÁT</string>
+    <string name="retrive_data">Đang lấy dữ liệu</string>
+    <string name="update_successful">Cập nhật thông tin thành công</string>
+    <string name="updating_data">Đang cập nhật thông tin</string>
+    <string name="title_activity_maps2">Map</string>
+    <string name="title_activity_maps3">Map</string>
+</resources>

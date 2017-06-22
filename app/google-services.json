@@ -1,0 +1,187 @@
+{
+  "project_info": {
+    "project_number": "1098606882610",
+    "firebase_url": "https://thesisk13-hcmus.firebaseio.com",
+    "project_id": "thesisk13-hcmus",
+    "storage_bucket": "thesisk13-hcmus.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1098606882610:android:c74a3f4c9d02757a",
+        "android_client_info": {
+          "package_name": "com.example.huongthu.thesismaps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1098606882610-4hd7jt9ugq47bgkabsu1q2nn5o7032mv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.huongthu.thesismaps",
+            "certificate_hash": "719a58467f48a3d95723e21a9a575790f8b708f9"
+          }
+        },
+        {
+          "client_id": "1098606882610-uf7igclp2cps47kl21in0mjhk34kpl33.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhf8lYsK7HL34K4jNiEKNbMLbsNxrrEd4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1098606882610-uf7igclp2cps47kl21in0mjhk34kpl33.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1098606882610:android:463e2db29b0e0f96",
+        "android_client_info": {
+          "package_name": "com.mobile.nhatnguyen.appclient"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1098606882610-drkf7uioe646te86qqtlhtdtri0de7f4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mobile.nhatnguyen.appclient",
+            "certificate_hash": "719a58467f48a3d95723e21a9a575790f8b708f9"
+          }
+        },
+        {
+          "client_id": "1098606882610-uf7igclp2cps47kl21in0mjhk34kpl33.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhf8lYsK7HL34K4jNiEKNbMLbsNxrrEd4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1098606882610-uf7igclp2cps47kl21in0mjhk34kpl33.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1098606882610:android:b43c6b367b527bb4",
+        "android_client_info": {
+          "package_name": "com.example.thu.taxinhanh"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1098606882610-dttsrrn7fih07kab8tgqbh347j94316a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.thu.taxinhanh",
+            "certificate_hash": "719a58467f48a3d95723e21a9a575790f8b708f9"
+          }
+        },
+        {
+          "client_id": "1098606882610-uf7igclp2cps47kl21in0mjhk34kpl33.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhf8lYsK7HL34K4jNiEKNbMLbsNxrrEd4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1098606882610-uf7igclp2cps47kl21in0mjhk34kpl33.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1098606882610:android:c31e3fff8f89aac3",
+        "android_client_info": {
+          "package_name": "com.example.thu.taxinhanhdriver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1098606882610-42cb34ub379praj6c7gd2aq1dsskabro.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.thu.taxinhanhdriver",
+            "certificate_hash": "719a58467f48a3d95723e21a9a575790f8b708f9"
+          }
+        },
+        {
+          "client_id": "1098606882610-uf7igclp2cps47kl21in0mjhk34kpl33.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhf8lYsK7HL34K4jNiEKNbMLbsNxrrEd4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1098606882610-uf7igclp2cps47kl21in0mjhk34kpl33.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
