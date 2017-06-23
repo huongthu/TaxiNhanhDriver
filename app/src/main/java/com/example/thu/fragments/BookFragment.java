@@ -9,17 +9,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,13 +27,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.thu.taxinhanhdriver.MainActivity;
-import com.example.thu.taxinhanhdriver.MapsActivity;
 import com.example.thu.taxinhanhdriver.R;
 import com.example.thu.utils.AreaController;
 import com.example.thu.utils.DirectionFinder;
 import com.example.thu.utils.DirectionFinderListener;
-import com.example.thu.utils.GPSTracker;
 import com.example.thu.utils.LatLngInterpolator;
 import com.example.thu.utils.MarkerAnimation;
 import com.example.thu.utils.Route;
@@ -52,9 +47,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -64,7 +57,6 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -96,11 +88,10 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     private ProgressDialog progressDialog;
 
     private static final String[] LOCATION_PERMS = {
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION
+        android.Manifest.permission.ACCESS_FINE_LOCATION,
+        android.Manifest.permission.ACCESS_COARSE_LOCATION
     };
     private static final int LOCATION_REQUEST = 1340;
-
 
     public static Fragment newInstance(Context context) {
         BookFragment f = new BookFragment();
@@ -148,6 +139,8 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
         protected void onProgressUpdate(Void... values) { }
     }
 
+    private boolean firstCofusGps = false;
+
     //https://stackoverflow.com/questions/13756261/how-to-get-the-current-location-in-google-maps-android-api-v2
     private GoogleMap.OnMyLocationChangeListener myLocationChangeListener = new GoogleMap.OnMyLocationChangeListener() {
         @Override
@@ -159,9 +152,10 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
             }
 
             mMarker = mMap.addMarker(new MarkerOptions().position(loc));
-            if(mMap != null){
+            if((mMap != null) && (firstCofusGps == false)){
                 //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.0f));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.0f));
+                firstCofusGps = true;
             }
 
                 LatLng b = new LatLng(location.getLatitude(), location.getLongitude());
@@ -182,65 +176,12 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         root = (ViewGroup) inflater.inflate(R.layout.activity_book, null);
 
-        final TextView tvPickUp = (TextView) root.findViewById(R.id.tvPickUp);
-        final TextView tvDropOff = (TextView) root.findViewById(R.id.tvDropOff);
-        tvPickUp.setSelected(true);
-        tvDropOff.setSelected(true);
-
-        Button btnPickUp = (Button) root.findViewById(R.id.btnPickUp);
-        btnPickUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        new GetAddressSync().execute(pickUpLocation);
-                    }
-                });
-            }
-        });
-
-        Button btnDropOff = (Button) root.findViewById(R.id.btnDropOff);
-
-        btnDropOff.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new LoadPlaceAutocomplete().execute();
-
-
-            }
-        });
-
-        ImageButton btnClearPickUp = (ImageButton) root.findViewById(R.id.btnClearDropOff);
-        btnClearPickUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                tvDropOff.setText(getResources().getText(R.string.please_choose_dropoff));
-                tvDropOff.setTypeface(null, Typeface.ITALIC);
-            }
-        });
-
         final ImageButton btnBook = (ImageButton) root.findViewById(R.id.btnBook);
         btnBook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                //Toast.makeText(getContext(), String.valueOf(mMap.getCameraPosition().tilt),Toast.LENGTH_LONG).show();
-
                 if (isBookAvailable) {
-                    new AlertDialog.Builder(getActivity())
-                            .setTitle("Thông tin")
-                            .setMessage(getResources().getString(R.string.go_to_queue_zone))
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which)
-                                {
-                                    dialog.cancel();
-                                }
-                            }).create().show();
                     isBookAvailable = false;
-                    String currentAddress = getAddress(currentLocation.latitude, currentLocation.longitude);
-                    sendRequest(currentAddress, tvPickUp.getText().toString());
                 }
 
                 btnBook.setImageResource(R.drawable.book_invisible);
@@ -264,41 +205,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                 Socket mSocketControlCenter = null;
                 try {
                     mSocketControlCenter = IO.socket("http://thesisk13.ddns.net:3003");
-                    mSocketControlCenter.on("INITIAL_AREAS", new Emitter.Listener() {
-                        @Override
-                        public void call(final Object... args) {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(getActivity(), "Catch!!!", Toast.LENGTH_SHORT).show();
-                                    JSONObject areas = (JSONObject)args[0];
-
-                                    try {
-                                        ArrayList<LatLng> lstQueuingZone = Utils.parseJSONArea(areas.getJSONArray("queuingArea"));
-                                        ArrayList<LatLng> lstWarningZone = Utils.parseJSONArea(areas.getJSONArray("warningArea"));
-                                        ArrayList<LatLng> lstSwitchZone = Utils.parseJSONArea(areas.getJSONArray("switchArea"));
-
-                                        areaController.updateQueuingInformation(lstSwitchZone, lstWarningZone, lstQueuingZone);
-                                        PolygonOptions polygonOptions = new PolygonOptions();
-                                        polygonOptions.addAll(lstSwitchZone)
-                                                .addHole(lstWarningZone)
-                                                .fillColor(0xff000c15)
-                                                .strokeColor(Color.TRANSPARENT);
-
-                                        if (currentLocation != null) {
-                                            currentPolygon.remove();
-                                        }
-
-                                        currentPolygon =  mMap.addPolygon(polygonOptions);
-                                        //Toast.makeText(getActivity(), "Catch success!!!", Toast.LENGTH_SHORT).show();
-                                        //Toast.makeText(getActivity(), String.valueOf(lstQueuingZone.size() + lstSwitchZone.size() + lstWarningZone.size()), Toast.LENGTH_SHORT).show();
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                        }
-                    });
+                    mSocketControlCenter.on("INITIAL_AREAS", QueuingListener);
                     mSocketControlCenter.connect();
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
@@ -313,28 +220,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                 }
                 mMap.setMyLocationEnabled(true);
 
-                //gpsTracker = new GPSTracker(getActivity());
-
-                TextView tvPickUp = (TextView) root.findViewById(R.id.tvPickUp);
-                tvPickUp.setText(getAddress(pickUpLocation.latitude, pickUpLocation.longitude));
-                //tvPickUp.setText(getAddress(gpsTracker.getLatitude(),gpsTracker.getLongitude()));
-
-                // For dropping a marker at a point on the Map
-                //LatLng sydney = new LatLng(gpsTracker.getLatitude(),gpsTracker.getLongitude());
-                //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));
-
-                // For zooming automatically to the location of the marker
-                //CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(15).build();
-
-                //mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 mMap.setOnMyLocationChangeListener(myLocationChangeListener);
-
-
-//                mMap.addMarker(new MarkerOptions()
-//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
-//                        .title("59A-1234")
-//                        .position(new LatLng(10.7622739,106.6822471)));
-
 
                 mSocket.on("INIT_VEHICELS", new Emitter.Listener() {
                     @Override
@@ -347,74 +233,9 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                             }
                         });
                     }
-                }).on("VEHICLE_UPDATE", new Emitter.Listener() {
-                    @Override
-                    public void call(Object... args) {
-                        final JSONObject objUpdate = (JSONObject) args[0];
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-
-                                    Marker vehicle = findVehicleMarker(objUpdate.getString("licensePlate"));
-                                    LatLng newLocation = new LatLng(objUpdate.getDouble("lat"),objUpdate.getDouble("lng"));
-                                    LatLng oldLocation = new LatLng(objUpdate.getDouble("latOld"),objUpdate.getDouble("lngOld"));
-
-                                    String licensePlate = objUpdate.getString("licensePlate");
-                                    if (null == vehicle) {
-                                        lstVehicles.add(mMap.addMarker(new MarkerOptions()
-                                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
-                                                .title(licensePlate)
-                                                .position(newLocation)));
-                                    } else {
-                                        Location prevLoc = new Location("");
-                                        prevLoc.setLatitude(oldLocation.latitude);
-                                        prevLoc.setLongitude(oldLocation.longitude);
-
-                                        Location nextLoc = new Location("");
-                                        nextLoc.setLatitude(newLocation.latitude);
-                                        nextLoc.setLongitude(newLocation.longitude);
-
-                                        float bearing = prevLoc.bearingTo(nextLoc) ;
-
-
-                                        vehicle.setRotation(bearing);
-                                        MarkerAnimation.animateMarkerToICS(vehicle, newLocation, new LatLngInterpolator.Spherical());
-                                        //vehicle.setPosition();
-
-                                    }
-
-                                    ;
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-                        });
-                    }
-                });
+                }).on("VEHICLE_UPDATE", VehicleUpdate);
 
                 mSocket.connect();
-
-
-//                ArrayList<LatLng> a = new ArrayList<LatLng>();
-//                a.add(new LatLng(10.763001338925134,106.675278721788));
-//                a.add(new LatLng(10.763001338925134,106.69027566331943));
-//                a.add(new LatLng(10.756531587882872,106.69027566331943));
-//                a.add(new LatLng(10.756531587882872,106.675278721788));
-//
-//                LatLng b = new LatLng(10.7622739,106.6822471);
-//                final String res = String.valueOf((Utils.isPointInPolygon(b, a)));
-//
-//                boolean c = com.google.maps.android.PolyUtil.containsLocation(b, a, true);
-//
-//
-//                getActivity().runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Toast.makeText(getActivity(), res, Toast.LENGTH_SHORT);
-//                    }
-//                });
             }
         });
 
@@ -422,6 +243,82 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
 
         return root;
     }
+
+    private  Emitter.Listener VehicleUpdate = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            final JSONObject objUpdate = (JSONObject) args[0];
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+
+                        Marker vehicle = findVehicleMarker(objUpdate.getString("licensePlate"));
+                        LatLng newLocation = new LatLng(objUpdate.getDouble("lat"),objUpdate.getDouble("lng"));
+                        LatLng oldLocation = new LatLng(objUpdate.getDouble("latOld"),objUpdate.getDouble("lngOld"));
+
+                        String licensePlate = objUpdate.getString("licensePlate");
+                        if (null == vehicle) {
+                            lstVehicles.add(mMap.addMarker(new MarkerOptions()
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
+                                    .title(licensePlate)
+                                    .position(newLocation)));
+                        } else {
+                            Location prevLoc = new Location("");
+                            prevLoc.setLatitude(oldLocation.latitude);
+                            prevLoc.setLongitude(oldLocation.longitude);
+
+                            Location nextLoc = new Location("");
+                            nextLoc.setLatitude(newLocation.latitude);
+                            nextLoc.setLongitude(newLocation.longitude);
+
+                            float bearing = prevLoc.bearingTo(nextLoc) ;
+
+                            vehicle.setRotation(bearing);
+                            MarkerAnimation.animateMarkerToICS(vehicle, newLocation, new LatLngInterpolator.Spherical());
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener QueuingListener = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getActivity(), "Catch!!!", Toast.LENGTH_SHORT).show();
+                    JSONObject areas = (JSONObject)args[0];
+
+                    try {
+                        ArrayList<LatLng> lstQueuingZone = Utils.parseJSONArea(areas.getJSONArray("queuingArea"));
+                        ArrayList<LatLng> lstWarningZone = Utils.parseJSONArea(areas.getJSONArray("warningArea"));
+                        ArrayList<LatLng> lstSwitchZone = Utils.parseJSONArea(areas.getJSONArray("switchArea"));
+
+                        areaController.updateQueuingInformation(lstSwitchZone, lstWarningZone, lstQueuingZone);
+                        PolygonOptions polygonOptions = new PolygonOptions();
+                        polygonOptions.addAll(lstSwitchZone)
+                                .addHole(lstWarningZone)
+                                .fillColor(ContextCompat.getColor(getContext(), R.color.colorQueuing))
+                                .strokeColor(Color.RED);
+
+                        if (currentLocation != null) {
+                            currentPolygon.remove();
+                        }
+
+                        currentPolygon =  mMap.addPolygon(polygonOptions);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+    };
 
     private class LoadPlaceAutocomplete extends AsyncTask<Void, Void, Void> {
 
@@ -513,14 +410,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-//        mMap = googleMap;
-//
-//        // Add a marker in Sydney and move the camera
-//        LatLng sydney = new LatLng(-34, 151);
-//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-    }
+    public void onMapReady(GoogleMap googleMap) { }
 
     @Override
     public void onResume() {
@@ -631,13 +521,6 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
 
     public void updatePriceUI(double distance) {
         if (isBookAvailable) {
-            ((ImageButton) getActivity().findViewById(R.id.btnBook)).setImageResource(R.drawable.book_visible);
-            getActivity().findViewById(R.id.tiPrice).setVisibility(View.VISIBLE);
-            TextView tvBook = (TextView)getActivity().findViewById(R.id.tvFare);
-            tvBook.setText("Giá cước dự tính: " + String.format("%,.0f VNĐ", distance * 11000));
-            //((ImageButton) root.findViewById(R.id.btnBook)).setImageResource(R.drawable.book_visible);
-        } else {
-            //((ImageButton) getActivity().findViewById(R.id.btnBook)).setImageResource(R.drawable.book_invisible);
         }
     }
 }

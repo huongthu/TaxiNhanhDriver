@@ -12,4 +12,5 @@
     <color name="colorGrey">#6b6969</color>
     <color name="colorRed">#e41313</color>
     <color name="colorOpaque">#85000000</color>
+    <color name="colorQueuing">#45fa0000</color>
 </resources>
