@@ -13,4 +13,5 @@
     <color name="colorRed">#e41313</color>
     <color name="colorOpaque">#85000000</color>
     <color name="colorQueuing">#45fa0000</color>
+    <color name="colorCustomerBookGrey">#dad8d8</color>
 </resources>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#49c1bcbc"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_margin="10dp"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:background="@drawable/layout_bg"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvDistance"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@drawable/layout_bg_top"
+                android:gravity="center"
+                android:text="Khoảng cách: 2.5 km"
+                android:textColor="@color/colorBlack"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvPickUp"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="@color/colorCustomerBookGrey"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="CHUNG CƯ MAN THIỆN HIỆP PHÚ QUẬN 9"
+                android:textColor="@color/colorBlack"
+                android:textSize="20sp"
+                />
+
+            <TextView
+                android:id="@+id/tvDropOff"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="@color/colorWhite"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="CHUNG CƯ MAN THIỆN HIỆP PHÚ QUẬN 9"
+                android:textColor="@color/colorBlack"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/layout_bg_cus_req_bottom"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:text="Giá cuốc"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvFee"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:gravity="center"
+                    android:text="100.000 VNĐ"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_alignParentBottom="true"
+                android:background="#07a6ea"
+                android:orientation="horizontal"
+                android:gravity="center"
+                >
+                <Button
+                    android:id="@+id/btnConfirm"
+                    android:layout_width="match_parent"
+                    android:background="#07a6ea"
+                    android:layout_height="60dp"
+                    android:textAllCaps="true"
+                    android:textSize="20sp"
+                    android:textColor="@color/colorWhite"
+                    android:text="Đồng ý cuốc"
+                    android:layout_weight="20"
+                    />
+                <TextView
+                    android:layout_margin="5dp"
+                    android:background="@drawable/layout_bg_circle"
+                    android:layout_weight="1"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorWhite"
+                    android:text="10"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:gravity="center_vertical|center_horizontal" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

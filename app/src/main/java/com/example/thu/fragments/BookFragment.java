@@ -3,6 +3,7 @@ package com.example.thu.fragments;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,6 +16,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -56,6 +58,7 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -106,6 +109,13 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     {
         try {
             mSocket = IO.socket("http://thesisk13.ddns.net:3002/");
+        } catch (URISyntaxException e) {}
+    }
+
+    Socket mSocketControlCenter;
+    {
+        try {
+            mSocketControlCenter = IO.socket("http://thesisk13.ddns.net:3003");
         } catch (URISyntaxException e) {}
     }
 
@@ -163,7 +173,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getActivity(), "Vào vùng ahihi", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getActivity(), "Vào vùng ahihi", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -188,6 +198,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
             }
         });
 
+
         mMapView = (MapView) root.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
@@ -202,14 +213,41 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap map) {
-                Socket mSocketControlCenter = null;
-                try {
-                    mSocketControlCenter = IO.socket("http://thesisk13.ddns.net:3003");
-                    mSocketControlCenter.on("INITIAL_AREAS", QueuingListener);
-                    mSocketControlCenter.connect();
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
+                mSocketControlCenter.on("INITIAL_AREAS", QueuingListener);
+                mSocketControlCenter.on("DRIVER_REQUESTION", CustomerRequest);
+                mSocketControlCenter.connect();
+
+                Button btnJoinQueue = (Button) getActivity().findViewById(R.id.btnJoin);
+
+                final Socket finalMSocketControlCenter = mSocketControlCenter;
+                btnJoinQueue.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            if (currentLocation == null) {
+                                return;
+                            }
+                            JSONObject data = new JSONObject();
+                            data.put("_uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                            data.put("lat", currentLocation.latitude);
+                            data.put("lng", currentLocation.longitude);
+
+                            finalMSocketControlCenter.emit(getResources().getString(R.string.DRIVER_JOIN), data);
+                        } catch (JSONException e) {
+                        }
+
+                    }
+                });
+
+                ((Button) getActivity().findViewById(R.id.btn2)).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final Dialog dialog2 = new Dialog(getActivity(), android.R.style.Theme_DeviceDefault_Wallpaper_NoTitleBar);
+                        dialog2.setContentView(R.layout.activity_customer_request);
+                        dialog2.setTitle("Title...");
+                        dialog2.show();
+                    }
+                });
 
                 mMap = map;
 
@@ -243,6 +281,78 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
 
         return root;
     }
+
+    private Emitter.Listener CustomerRequest = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    final JSONObject objData = (JSONObject) args[0];
+                    try {
+                        objData.put("isAccept", false);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    final Dialog dialog2 = new Dialog(getActivity(), android.R.style.Theme_DeviceDefault_Wallpaper_NoTitleBar);
+                    dialog2.setContentView(R.layout.activity_customer_request);
+                    dialog2.show();
+
+                    // Hide after some seconds
+                    final Handler handler  = new Handler();
+                    final Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (dialog2.isShowing()) {
+                                dialog2.dismiss();
+                            }
+                        }
+                    };
+
+                    try {
+                        ((TextView) dialog2.findViewById(R.id.tvDistance)).setText(objData.getString("distance"));
+                        ((TextView) dialog2.findViewById(R.id.tvPickUp)).setText(objData.getString("pickUpLocation"));
+                        ((TextView) dialog2.findViewById(R.id.tvDropOff)).setText(objData.getString("destination"));
+                        ((TextView) dialog2.findViewById(R.id.tvFee)).setText(String.format("%,.0f VNĐ", objData.getDouble("fee")));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    Button btnAgreeBooking = (Button) dialog2.findViewById(R.id.btnConfirm);
+                    btnAgreeBooking.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            try {
+                                objData.put("isAccept", true);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            mSocketControlCenter.emit(getResources().getString(R.string.DRIVER_REQUESTION_RESULT), objData);
+                            dialog2.dismiss();
+                        }
+                    });
+
+                    dialog2.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            handler.removeCallbacks(runnable);
+
+                            try {
+                                if (!objData.getBoolean("isAccept")) {
+                                    //Toast.makeText(MainActivity.this, "Auto exit", Toast.LENGTH_SHORT).show();
+                                    mSocketControlCenter.emit(getResources().getString(R.string.DRIVER_REQUESTION_RESULT), objData);
+                                }
+                            } catch (JSONException e) {
+                            }
+                        }
+                    });
+
+                    handler.postDelayed(runnable, 15000);
+                }
+            });
+        }
+    };
 
     private  Emitter.Listener VehicleUpdate = new Emitter.Listener() {
         @Override

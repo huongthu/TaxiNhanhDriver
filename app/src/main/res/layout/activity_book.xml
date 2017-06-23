@@ -6,8 +6,6 @@
     android:layout_height="match_parent"
     android:background="#bab8b8">
 
-
-
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
@@ -72,6 +70,19 @@
             android:text="Loading..."
             android:textStyle="bold"
             />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btnJoin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/btn2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 </RelativeLayout>
