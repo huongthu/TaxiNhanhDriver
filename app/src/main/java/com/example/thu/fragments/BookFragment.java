@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.example.thu.taxinhanhdriver.R;
 import com.example.thu.utils.AreaController;
+import com.example.thu.utils.BookInfo;
 import com.example.thu.utils.DirectionFinder;
 import com.example.thu.utils.DirectionFinderListener;
 import com.example.thu.utils.LatLngInterpolator;
@@ -335,11 +336,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                             }
                             mSocketControlCenter.emit(getResources().getString(R.string.DRIVER_REQUESTION_RESULT), objData);
 
-                            try {
-                                showPickUpDirection(objData);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                            showPickUpDirection(new BookInfo(objData));
 
                             dialog2.dismiss();
                         }
@@ -367,36 +364,29 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
         }
     };
 
-    private void showPickUpDirection(final JSONObject customerInfo) throws JSONException {
+    private void showPickUpDirection(final BookInfo bookInfo) {
         getActivity().findViewById(R.id.llTitle).setVisibility(View.VISIBLE);
         getActivity().findViewById(R.id.llControl).setVisibility(View.VISIBLE);
         ((TextView) getActivity().findViewById(R.id.tvTitle)).setText("Đón khách");
-        ((TextView) getActivity().findViewById(R.id.tvLocation)).setText(customerInfo.getString("pickUpLocation"));
-        ((TextView) getActivity().findViewById(R.id.tvCustomerName)).setText(customerInfo.getString("customerName"));
-        ((TextView) getActivity().findViewById(R.id.tvPrice)).setText(customerInfo.getString("fee"));
+        ((TextView) getActivity().findViewById(R.id.tvLocation)).setText(bookInfo.getPickUpLocation());
+        ((TextView) getActivity().findViewById(R.id.tvCustomerName)).setText(bookInfo.getCustomerName());
+        ((TextView) getActivity().findViewById(R.id.tvPrice)).setText(String.format("%,.0f VNĐ", bookInfo.getFee()));
 
         getActivity().findViewById(R.id.btnCall).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    makeAPhoneCall(customerInfo.getString("phone"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            makeAPhoneCall(bookInfo.getPhone());
             }
         });
 
         getActivity().findViewById(R.id.btnSMS).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    makeASMS(customerInfo.getString("phone"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            makeASMS(bookInfo.getPhone());
             }
         });
     }
+
 
     private void makeAPhoneCall(String mobilePhone) {
         final int REQUEST_PHONE_CALL = 1;

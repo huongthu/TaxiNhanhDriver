@@ -38,7 +38,7 @@
     <string name="plz_provide_full_register_info">Vui lòng cung cấp đủ thông tin đăng ký</string>
     <string name="title_activity_maps">Map</string>
     <string name="current_place">Địa điểm của bạn</string>
-    <string name="url_nofitication">http://thesishcmus-huongthu.c9users.io:8080/nofitications/customers</string>
+    <string name="url_nofitication">http://thesisk13.ddns.net:3003/nofitications/customers</string>
     <string name="JOIN_CHAT">JOIN_CHAT</string>
     <string name="MESSAGE">MESSAGE</string>
     <string name="go_to_queue_zone">Đặt xe thành công, vui lòng đi đến địa điểm xếp hàng</string>
@@ -46,6 +46,12 @@
     <string name="retrive_data">Đang lấy dữ liệu</string>
     <string name="update_successful">Cập nhật thông tin thành công</string>
     <string name="updating_data">Đang cập nhật thông tin</string>
-    <string name="title_activity_maps2">Map</string>
-    <string name="title_activity_maps3">Map</string>
+
+    <string name="json_destination">destination</string>
+    <string name="json_distance">distance</string>
+    <string name="json_pickUpLocation">pickUpLocation</string>
+    <string name="json_customerName">customerName</string>
+    <string name="json_phone">phone</string>
+    <string name="json_fee">fee</string>
+
 </resources>
