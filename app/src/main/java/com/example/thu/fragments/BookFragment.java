@@ -14,6 +14,7 @@ import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -91,8 +92,8 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     private ProgressDialog progressDialog;
 
     private static final String[] LOCATION_PERMS = {
-        android.Manifest.permission.ACCESS_FINE_LOCATION,
-        android.Manifest.permission.ACCESS_COARSE_LOCATION
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION
     };
     private static final int LOCATION_REQUEST = 1340;
 
@@ -106,24 +107,28 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     LatLng currentLocation = null;
 
     private Socket mSocket;
+
     {
         try {
             mSocket = IO.socket("http://thesisk13.ddns.net:3002/");
-        } catch (URISyntaxException e) {}
+        } catch (URISyntaxException e) {
+        }
     }
 
     Socket mSocketControlCenter;
+
     {
         try {
             mSocketControlCenter = IO.socket("http://thesisk13.ddns.net:3003");
-        } catch (URISyntaxException e) {}
+        } catch (URISyntaxException e) {
+        }
     }
 
     AreaController areaController = new AreaController();
 
     Polygon currentPolygon = null;
 
-    public LatLng pickUpLocation = new LatLng(10.7622739,106.6822471);
+    public LatLng pickUpLocation = new LatLng(10.7622739, 106.6822471);
 
     private class GetAddressSync extends AsyncTask<LatLng, Void, String> {
 
@@ -134,7 +139,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
 
         @Override
         protected void onPostExecute(String result) {
-            ((LinearLayout)root.findViewById(R.id.llLoading)).setVisibility(View.GONE);
+            ((LinearLayout) root.findViewById(R.id.llLoading)).setVisibility(View.GONE);
 
             TextView tvPickUp = (TextView) root.findViewById(R.id.tvPickUp);
             tvPickUp.setText(result);
@@ -142,11 +147,12 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
 
         @Override
         protected void onPreExecute() {
-            ((LinearLayout)root.findViewById(R.id.llLoading)).setVisibility(View.VISIBLE);
+            ((LinearLayout) root.findViewById(R.id.llLoading)).setVisibility(View.VISIBLE);
         }
 
         @Override
-        protected void onProgressUpdate(Void... values) { }
+        protected void onProgressUpdate(Void... values) {
+        }
     }
 
     private boolean firstCofusGps = false;
@@ -162,21 +168,21 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
             }
 
             mMarker = mMap.addMarker(new MarkerOptions().position(loc));
-            if((mMap != null) && (firstCofusGps == false)){
+            if ((mMap != null) && (firstCofusGps == false)) {
                 //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.0f));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.0f));
                 firstCofusGps = true;
             }
 
-                LatLng b = new LatLng(location.getLatitude(), location.getLongitude());
-                if (areaController.canJoinQueuingZone(b)) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            //Toast.makeText(getActivity(), "Vào vùng ahihi", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
+            LatLng b = new LatLng(location.getLatitude(), location.getLongitude());
+            if (areaController.canJoinQueuingZone(b)) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Toast.makeText(getActivity(), "Vào vùng ahihi", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
     };
 
@@ -278,7 +284,6 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
         });
 
 
-
         return root;
     }
 
@@ -300,7 +305,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                     dialog2.show();
 
                     // Hide after some seconds
-                    final Handler handler  = new Handler();
+                    final Handler handler = new Handler();
                     final Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
@@ -329,6 +334,13 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                                 e.printStackTrace();
                             }
                             mSocketControlCenter.emit(getResources().getString(R.string.DRIVER_REQUESTION_RESULT), objData);
+
+                            try {
+                                showPickUpDirection(objData);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
                             dialog2.dismiss();
                         }
                     });
@@ -342,6 +354,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                                 if (!objData.getBoolean("isAccept")) {
                                     //Toast.makeText(MainActivity.this, "Auto exit", Toast.LENGTH_SHORT).show();
                                     mSocketControlCenter.emit(getResources().getString(R.string.DRIVER_REQUESTION_RESULT), objData);
+
                                 }
                             } catch (JSONException e) {
                             }
@@ -353,6 +366,53 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
             });
         }
     };
+
+    private void showPickUpDirection(final JSONObject customerInfo) throws JSONException {
+        getActivity().findViewById(R.id.llTitle).setVisibility(View.VISIBLE);
+        getActivity().findViewById(R.id.llControl).setVisibility(View.VISIBLE);
+        ((TextView) getActivity().findViewById(R.id.tvTitle)).setText("Đón khách");
+        ((TextView) getActivity().findViewById(R.id.tvLocation)).setText(customerInfo.getString("pickUpLocation"));
+        ((TextView) getActivity().findViewById(R.id.tvCustomerName)).setText(customerInfo.getString("customerName"));
+        ((TextView) getActivity().findViewById(R.id.tvPrice)).setText(customerInfo.getString("fee"));
+
+        getActivity().findViewById(R.id.btnCall).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    makeAPhoneCall(customerInfo.getString("phone"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        getActivity().findViewById(R.id.btnSMS).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    makeASMS(customerInfo.getString("phone"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void makeAPhoneCall(String mobilePhone) {
+        final int REQUEST_PHONE_CALL = 1;
+        Intent intent = new Intent(Intent.ACTION_CALL);
+
+        intent.setData(Uri.parse("tel:" + mobilePhone));
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CALL_PHONE}, REQUEST_PHONE_CALL);
+            return;
+        }
+        getActivity().startActivity(intent);
+    }
+
+    private void makeASMS(String mobilePhone) {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + mobilePhone)));
+    }
 
     private  Emitter.Listener VehicleUpdate = new Emitter.Listener() {
         @Override
