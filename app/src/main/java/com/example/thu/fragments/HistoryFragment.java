@@ -4,30 +4,25 @@ package com.example.thu.fragments;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.thu.taxinhanhdriver.R;
 import com.example.thu.utils.BookHistory;
+import com.example.thu.utils.CircleTransform;
 import com.example.thu.utils.Utils;
 import com.google.firebase.auth.FirebaseAuth;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Created by thu on 6/12/2017.
- */
 
 public class HistoryFragment extends Fragment {
     View root = null;
@@ -90,8 +85,13 @@ public class HistoryFragment extends Fragment {
         llChatContent.addView(viewHistory);
 
         //scroll to end - NOT WORKING
-        ScrollView svChatContent = (ScrollView)root.findViewById(R.id.svHistoryContent);
-        svChatContent.fullScroll(View.FOCUS_DOWN);
+        ScrollView svHistoryContent = (ScrollView)root.findViewById(R.id.svHistoryContent);
+        svHistoryContent.fullScroll(View.FOCUS_DOWN);
+
+        //Load customer avatar
+        Picasso.with(getContext()).load("http://i.imgur.com/DvpvklR.png")
+                .transform(new CircleTransform())
+                .into((ImageView) viewHistory.findViewById(R.id.ivAvatar));
     }
 
     private class GetHistoryAsync extends AsyncTask<String, Void, String> {
