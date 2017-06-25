@@ -128,6 +128,8 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
         }
     }
 
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
     AreaController areaController = new AreaController();
 
     Polygon currentPolygon = null;
@@ -160,6 +162,8 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     }
 
     private boolean firstCofusGps = false;
+
+    private int CustomerGetInResultId = -1;
 
     //https://stackoverflow.com/questions/13756261/how-to-get-the-current-location-in-google-maps-android-api-v2
     private GoogleMap.OnMyLocationChangeListener myLocationChangeListener = new GoogleMap.OnMyLocationChangeListener() {
@@ -225,6 +229,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
             public void onMapReady(GoogleMap map) {
                 mSocketControlCenter.on("INITIAL_AREAS", QueuingListener);
                 mSocketControlCenter.on("DRIVER_REQUESTION", CustomerRequest);
+                mSocketControlCenter.on("CUSTOMER_GET_IN_TAXI_RESULT", CustomerGetInResult);
                 mSocketControlCenter.connect();
 
                 Button btnJoinQueue = (Button) getActivity().findViewById(R.id.btnJoin);
@@ -290,6 +295,13 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
 
         return root;
     }
+
+    private Emitter.Listener CustomerGetInResult = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            CustomerGetInResultId = (int)args[0];
+        }
+    };
 
     private Emitter.Listener CustomerRequest = new Emitter.Listener() {
         @Override
@@ -422,6 +434,19 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
         getActivity().findViewById(R.id.btnCustomerGetInCar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                JSONObject bookHistory = new JSONObject();
+                try {
+                    bookHistory.put("pickUpPlace", bookInfo.getPickUpLocation());
+                    bookHistory.put("dropOffPlace", bookInfo.getDestination());
+                    //bookHistory.put("customerId", bookInfo.getDestination());
+                    bookHistory.put("driverId", mAuth.getCurrentUser().getUid());
+                    bookHistory.put("customerName", bookInfo.getCustomerName());
+                    bookHistory.put("driverName", mAuth.getCurrentUser().getDisplayName());
+
+                    mSocketControlCenter.emit("CUSTOMER_GET_IN_TAXI", bookHistory);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 showDropOffDestination(bookInfo);
             }
         });
@@ -439,6 +464,13 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
         getActivity().findViewById(R.id.btnDestination).setVisibility(View.GONE);
         getActivity().findViewById(R.id.llGetIn).setVisibility(View.GONE);
         getActivity().findViewById(R.id.llDropOff).setVisibility(View.VISIBLE);
+
+        getActivity().findViewById(R.id.btnCustomerDropOff).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSocketControlCenter.emit("CUSTOMER_GET_OUT_TAXI", CustomerGetInResultId);
+            }
+        });
     }
 
 
