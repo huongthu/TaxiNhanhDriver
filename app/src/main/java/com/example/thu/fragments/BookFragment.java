@@ -107,6 +107,9 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     Marker mMarker = null;
     LatLng currentLocation = null;
 
+    Marker mMakerPickUp = null;
+    Marker mMakerDestination = null;
+
     private Socket mSocket;
 
     {
@@ -164,11 +167,11 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
         public void onMyLocationChange(final Location location) {
             LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
             currentLocation = loc;
-            if (mMarker != null) {
-                mMarker.remove();
-            }
-
-            mMarker = mMap.addMarker(new MarkerOptions().position(loc));
+//            if (mMarker != null) {
+//                mMarker.remove();
+//            }
+//
+//            mMarker = mMap.addMarker(new MarkerOptions().position(loc));
             if ((mMap != null) && (firstCofusGps == false)) {
                 //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.0f));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.0f));
@@ -372,6 +375,18 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
         ((TextView) getActivity().findViewById(R.id.tvCustomerName)).setText(bookInfo.getCustomerName());
         ((TextView) getActivity().findViewById(R.id.tvPrice)).setText(String.format("%,.0f VNĐ", bookInfo.getFee()));
 
+        mMakerPickUp =  mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.locationa))
+                .title(bookInfo.getPickUpLocation())
+                .position(bookInfo.getPKLatLng()));
+
+        mMakerDestination =  mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.locationb))
+                .title(bookInfo.getDestination())
+                .position(bookInfo.getDesLatLng()));
+
+        sendRequest(currentLocation, bookInfo.getPKLatLng());
+
         getActivity().findViewById(R.id.btnCall).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -385,6 +400,45 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
             makeASMS(bookInfo.getPhone());
             }
         });
+
+        getActivity().findViewById(R.id.btnDestination).setVisibility(View.VISIBLE);
+        getActivity().findViewById(R.id.llGetIn).setVisibility(View.VISIBLE);
+        getActivity().findViewById(R.id.llDropOff).setVisibility(View.GONE);
+
+        getActivity().findViewById(R.id.btnDestination).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bookInfo.getDesLatLng(), 15.0f));
+            }
+        });
+
+        getActivity().findViewById(R.id.btnPickUp).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bookInfo.getPKLatLng(), 15.0f));
+            }
+        });
+
+        getActivity().findViewById(R.id.btnCustomerGetInCar).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDropOffDestination(bookInfo);
+            }
+        });
+    }
+
+    private void showDropOffDestination(BookInfo bookInfo) {
+        getActivity().findViewById(R.id.llTitle).setVisibility(View.VISIBLE);
+        getActivity().findViewById(R.id.llControl).setVisibility(View.VISIBLE);
+        ((TextView) getActivity().findViewById(R.id.tvTitle)).setText("Trả khách");
+        ((TextView) getActivity().findViewById(R.id.tvLocation)).setText(bookInfo.getDestination());
+        ((TextView) getActivity().findViewById(R.id.tvCustomerName)).setText(bookInfo.getCustomerName());
+        ((TextView) getActivity().findViewById(R.id.tvPrice)).setText(String.format("%,.0f VNĐ", bookInfo.getFee()));
+
+        sendRequest(bookInfo.getPKLatLng(), bookInfo.getDesLatLng());
+        getActivity().findViewById(R.id.btnDestination).setVisibility(View.GONE);
+        getActivity().findViewById(R.id.llGetIn).setVisibility(View.GONE);
+        getActivity().findViewById(R.id.llDropOff).setVisibility(View.VISIBLE);
     }
 
 
@@ -553,6 +607,14 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
         }
     }
 
+    private void sendRequest(LatLng origin, LatLng destination) {
+        try {
+            new DirectionFinder(this, origin, destination).execute();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
     public String getAddress(double lat, double lng) {
         Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
         try {
@@ -648,15 +710,15 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
             updatePriceUI(distance);
 
 
-            originMarkers.add(mMap.addMarker(new MarkerOptions()
-                    //.icon(BitmapDescriptorFactory.fromResource(R.drawable.empty_flag_40))
-                    .title(route.startAddress)
-                    .position(route.startLocation)));
-
-            destinationMarkers.add(mMap.addMarker(new MarkerOptions()
-                    //.icon(BitmapDescriptorFactory.fromResource(R.drawable.empty_flag_40))
-                    .title(route.endAddress)
-                    .position(route.endLocation)));
+//            originMarkers.add(mMap.addMarker(new MarkerOptions()
+//                    //.icon(BitmapDescriptorFactory.fromResource(R.drawable.empty_flag_40))
+//                    .title(route.startAddress)
+//                    .position(route.startLocation)));
+//
+//            destinationMarkers.add(mMap.addMarker(new MarkerOptions()
+//                    //.icon(BitmapDescriptorFactory.fromResource(R.drawable.empty_flag_40))
+//                    .title(route.endAddress)
+//                    .position(route.endLocation)));
 
             PolylineOptions polylineOptions = new PolylineOptions().
                     geodesic(true).

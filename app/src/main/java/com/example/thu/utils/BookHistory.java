@@ -1,30 +1,54 @@
 package com.example.thu.utils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by thu on 6/12/2017.
  */
 
 public class BookHistory {
+    private static String PICK_UP = "pickUp";
+    private static String DROP_OFF = "dropOff";
+    private static String DATE = "date";
+    private static String TOTAL_TIME = "totalTime";
+    private static String CUSTOMER_NAME = "customer";
+    private static String CUSTOMER_UID = "uidCustomer";
+
     private String mPickUp = "";
     private String mDropOff = "";
     private String mDate = "";
     private String mDuringTime = "";
-    private String mTaxiDriver = "";
-    private String mDriverUrl = "";
+    private String mCustomerName = "";
+    private String mCustomerUrl = "";
+    private String mCustomerUid = "";
 
     public BookHistory(String pickUp, String dropOff, String date,
-                       String duringTime, String taxiDriver, String driverUrl) {
+                       String duringTime, String customerName, String customerUrl) {
         mPickUp = pickUp;
         mDropOff = dropOff;
         mDate = date;
         mDuringTime = duringTime;
-        mTaxiDriver = taxiDriver;
-        mDriverUrl = driverUrl;
+        mCustomerName = customerName;
+        mCustomerUrl = customerUrl;
     }
 
     public BookHistory(String pickUp, String dropOff, String date,
                        String duringTime, String taxiDriver) {
         new BookHistory(pickUp, dropOff, date, duringTime, taxiDriver, "");
+    }
+
+    public BookHistory(JSONObject history) {
+        try {
+            mPickUp = history.getString(PICK_UP);
+            mDropOff = history.getString(DROP_OFF);
+            mDate = history.getString(DATE);
+            mDuringTime = history.getString(TOTAL_TIME);
+            mCustomerName = history.getString(CUSTOMER_NAME);
+            mCustomerUid = history.getString(CUSTOMER_UID);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getPickUp() {
@@ -39,11 +63,11 @@ public class BookHistory {
     public String getDuringTime() {
         return mDuringTime;
     }
-    public String getTaxiDriver() {
-        return mTaxiDriver;
+    public String getCustomerName() {
+        return mCustomerName;
     }
-    public String getDriverUrl() {
-        return mDriverUrl;
+    public String getCustomerUrl() {
+        return mCustomerUrl;
     }
 
     public void setPickUp(String pickUp) {
@@ -58,10 +82,11 @@ public class BookHistory {
     public void setDuringTime(String duringTime) {
         mDuringTime = duringTime;
     }
-    public void setTaxiDriver(String taxiDriver) {
-        mTaxiDriver = taxiDriver;
+    public void setCustomerName(String customerName) {
+        mCustomerName = customerName;
     }
-    public void setDriverUrl(String driverUrl) {
-        mDriverUrl = driverUrl;
+    public void setCustomerUrl(String customerUrl) {
+        mCustomerUrl = customerUrl;
     }
+    public void setmCustomerUid(String customerUid) {mCustomerUid = customerUid;}
 }

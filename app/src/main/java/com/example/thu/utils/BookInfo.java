@@ -28,8 +28,8 @@ public class BookInfo {
     final static String FEE = "fee";
     final static String PICK_UP_LAT_LNG = "pkLatLng";
     final static String DES_LAT_LNG = "desLatLng";
-    final static String LAT = "Lat";
-    final static String LNG = "Lng";
+    final static String LAT = "lat";
+    final static String LNG = "lng";
 
     private String mDistance = "";
     private String mDestination = "";

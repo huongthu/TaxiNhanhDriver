@@ -34,15 +34,32 @@ public class DirectionFinder {
     private String origin;
     private String destination;
 
+    private LatLng lOrigin;
+    private LatLng lDestination;
+
+    private boolean useLatLng = false;
+
     public DirectionFinder(DirectionFinderListener listener, String origin, String destination) {
         this.listener = listener;
         this.origin = origin;
         this.destination = destination;
     }
 
+    public DirectionFinder(DirectionFinderListener listener, LatLng origin, LatLng destination) {
+        useLatLng = true;
+        this.listener = listener;
+        this.lOrigin = origin;
+        this.lDestination = destination;
+    }
+
     public void execute() throws UnsupportedEncodingException {
-        listener.onDirectionFinderStart();
-        new DownloadRawData().execute(createUrl());
+        if (useLatLng) {
+            listener.onDirectionFinderStart();
+            new DownloadRawData().execute(createUrlLatLng());
+        } else {
+            listener.onDirectionFinderStart();
+            new DownloadRawData().execute(createUrl());
+        }
     }
 
     private String createUrl() throws UnsupportedEncodingException {
@@ -50,6 +67,11 @@ public class DirectionFinder {
         String urlDestination = URLEncoder.encode(destination, "utf-8");
 
         return DIRECTION_URL_API + "origin=" + urlOrigin + "&destination=" + urlDestination + "&key=" + GOOGLE_API_KEY;
+    }
+
+    private String createUrlLatLng() throws UnsupportedEncodingException {
+        return DIRECTION_URL_API + "origin=" + lOrigin.latitude + "," + lOrigin.longitude
+                + "&destination=" + lDestination.latitude + "," + lDestination.longitude + "&key=" + GOOGLE_API_KEY;
     }
 
     private class DownloadRawData extends AsyncTask<String, Void, String> {

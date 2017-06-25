@@ -53,5 +53,9 @@
     <string name="json_customerName">customerName</string>
     <string name="json_phone">phone</string>
     <string name="json_fee">fee</string>
+    <string name="destination">Điểm đến</string>
+    <string name="customer_get_in">Khách lên xe</string>
+    <string name="customer_drop_off">Khách xuống xe</string>
+    <string name="loading">Loading...</string>
 
 </resources>
