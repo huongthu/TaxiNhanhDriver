@@ -2,6 +2,7 @@ package com.example.thu.fragments;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -20,6 +21,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -104,6 +106,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     }
 
     ViewGroup root = null;
+    protected FragmentActivity mActivity;
     Marker mMarker = null;
     LatLng currentLocation = null;
 
@@ -230,6 +233,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                 mSocketControlCenter.on("INITIAL_AREAS", QueuingListener);
                 mSocketControlCenter.on("DRIVER_REQUESTION", CustomerRequest);
                 mSocketControlCenter.on("CUSTOMER_GET_IN_TAXI_RESULT", CustomerGetInResult);
+                mSocketControlCenter.on("DRIVER_LIST_CHANGE", DriverListChange);
                 mSocketControlCenter.connect();
 
                 Button btnJoinQueue = (Button) getActivity().findViewById(R.id.btnJoin);
@@ -246,11 +250,27 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                             data.put("_uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
                             data.put("lat", currentLocation.latitude);
                             data.put("lng", currentLocation.longitude);
+                            v.setVisibility(View.GONE);
+
+                            mActivity.findViewById(R.id.llLoadingQueue).setVisibility(View.VISIBLE);
 
                             finalMSocketControlCenter.emit(getResources().getString(R.string.DRIVER_JOIN), data);
                         } catch (JSONException e) {
                         }
 
+                    }
+                });
+
+                Button btnLeaveQueue = (Button) mActivity.findViewById(R.id.btnLeaveJoin);
+                btnLeaveQueue.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        finalMSocketControlCenter.emit(getResources().getString(R.string.DRIVER_LEAVES), new Object());
+
+                        ((TextView)mActivity.findViewById(R.id.tvQueueIndex)).setText("");
+                        mActivity.findViewById(R.id.llQueueInformation).setVisibility(View.GONE);
+                        mActivity.findViewById(R.id.btnJoin).setVisibility(View.VISIBLE);
+                        mActivity.findViewById(R.id.btnLeaveJoin).setVisibility(View.GONE);
                     }
                 });
 
@@ -296,6 +316,36 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
         return root;
     }
 
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mActivity = (FragmentActivity) activity;
+    }
+
+    private Emitter.Listener DriverListChange = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    final JSONObject objData = (JSONObject) args[0];
+                    try {
+                        ((TextView)mActivity.findViewById(R.id.tvQueueIndex)).setText(objData.getString("queueIndex"));
+                        mActivity.findViewById(R.id.llQueueInformation).setVisibility(View.VISIBLE);
+                        mActivity.findViewById(R.id.btnJoin).setVisibility(View.GONE);
+                        mActivity.findViewById(R.id.btnLeaveJoin).setVisibility(View.VISIBLE);
+
+                        mActivity.findViewById(R.id.llLoadingQueue).setVisibility(View.GONE);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (NullPointerException e) {
+
+                    }
+                }
+            });
+        }
+    };
+
     private Emitter.Listener CustomerGetInResult = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -306,7 +356,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     private Emitter.Listener CustomerRequest = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
-            getActivity().runOnUiThread(new Runnable() {
+            mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     final JSONObject objData = (JSONObject) args[0];
@@ -316,31 +366,31 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                         e.printStackTrace();
                     }
 
-                    final Dialog dialog2 = new Dialog(getActivity(), android.R.style.Theme_DeviceDefault_Wallpaper_NoTitleBar);
-                    dialog2.setContentView(R.layout.activity_customer_request);
-                    dialog2.show();
+                    final Dialog dialog = new Dialog(getActivity(), android.R.style.Theme_DeviceDefault_Wallpaper_NoTitleBar);
+                    dialog.setContentView(R.layout.activity_customer_request);
+                    dialog.show();
 
                     // Hide after some seconds
                     final Handler handler = new Handler();
                     final Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
-                            if (dialog2.isShowing()) {
-                                dialog2.dismiss();
+                            if (dialog.isShowing()) {
+                                dialog.dismiss();
                             }
                         }
                     };
 
                     try {
-                        ((TextView) dialog2.findViewById(R.id.tvDistance)).setText(objData.getString("distance"));
-                        ((TextView) dialog2.findViewById(R.id.tvPickUp)).setText(objData.getString("pickUpLocation"));
-                        ((TextView) dialog2.findViewById(R.id.tvDropOff)).setText(objData.getString("destination"));
-                        ((TextView) dialog2.findViewById(R.id.tvFee)).setText(String.format("%,.0f VNĐ", objData.getDouble("fee")));
+                        ((TextView) dialog.findViewById(R.id.tvDistance)).setText(objData.getString("distance"));
+                        ((TextView) dialog.findViewById(R.id.tvPickUp)).setText(objData.getString("pickUpLocation"));
+                        ((TextView) dialog.findViewById(R.id.tvDropOff)).setText(objData.getString("destination"));
+                        ((TextView) dialog.findViewById(R.id.tvFee)).setText(String.format("%,.0f VNĐ", objData.getDouble("fee")));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
-                    Button btnAgreeBooking = (Button) dialog2.findViewById(R.id.btnConfirm);
+                    Button btnAgreeBooking = (Button) dialog.findViewById(R.id.btnConfirm);
                     btnAgreeBooking.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -353,11 +403,11 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
 
                             showPickUpDirection(new BookInfo(objData));
 
-                            dialog2.dismiss();
+                            dialog.dismiss();
                         }
                     });
 
-                    dialog2.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialog) {
                             handler.removeCallbacks(runnable);
@@ -535,6 +585,9 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     private Emitter.Listener QueuingListener = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
+            if (getActivity() == null) {
+                return;
+            }
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -553,7 +606,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                                 .fillColor(ContextCompat.getColor(getContext(), R.color.colorQueuing))
                                 .strokeColor(Color.RED);
 
-                        if (currentLocation != null) {
+                        if (currentPolygon != null) {
                             currentPolygon.remove();
                         }
 
@@ -682,6 +735,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     public void onDestroy() {
         super.onDestroy();
         mMapView.onDestroy();
+        mSocketControlCenter.disconnect();
     }
 
     @Override

@@ -57,5 +57,9 @@
     <string name="customer_get_in">Khách lên xe</string>
     <string name="customer_drop_off">Khách xuống xe</string>
     <string name="loading">Loading...</string>
+    <string name="numberInQueue">Số thứ tự trong hàng đợi</string>
+    <string name="join_queue">Xếp hàng</string>
+    <string name="leave_queue">Hủy hàng đợi</string>
+    <string name="DRIVER_LEAVES">DRIVER_LEAVES</string>
 
 </resources>

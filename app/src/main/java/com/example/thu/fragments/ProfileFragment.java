@@ -17,6 +17,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,10 +43,11 @@ public class ProfileFragment extends Fragment {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
     private ProgressDialog progressDialog;
+    ViewGroup root = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.activity_profile, null);
+        root = (ViewGroup) inflater.inflate(R.layout.activity_profile, null);
         final EditText etFullName = (EditText) root.findViewById(R.id.etFullName);
         final EditText etPhone = (EditText) root.findViewById(R.id.etPhoneNumber);
         final EditText etEmail = (EditText) root.findViewById(R.id.etEmail);
@@ -78,8 +80,7 @@ public class ProfileFragment extends Fragment {
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                progressDialog = ProgressDialog.show(getActivity(), "",
-                        getResources().getString(R.string.retrive_data), true);
+                (root.findViewById(R.id.llLoading)).setVisibility(View.VISIBLE);
 
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
@@ -95,12 +96,12 @@ public class ProfileFragment extends Fragment {
                                     etPhone.setText(phoneNumber);
                                     etPhone.setTypeface(null, Typeface.NORMAL);
                                     etPhone.setKeyListener(phoneListener);
-                                    progressDialog.dismiss();
+                                    (root.findViewById(R.id.llLoading)).setVisibility(View.GONE);
                                 }
 
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
-                                    progressDialog.dismiss();
+                                    (root.findViewById(R.id.llLoading)).setVisibility(View.GONE);
                                 }
                             });
                 }
@@ -139,8 +140,7 @@ public class ProfileFragment extends Fragment {
     };
 
     private void updateUserInformation(String fullName, final String phoneNumber) {
-        progressDialog = ProgressDialog.show(getActivity(), "",
-                getResources().getString(R.string.updating_data), true);
+        (root.findViewById(R.id.llLoading)).setVisibility(View.VISIBLE);
 
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -171,7 +171,7 @@ public class ProfileFragment extends Fragment {
                                     tvFullName.setText(user.getDisplayName());
                                     tvEmail.setText(user.getEmail());
 
-                                    progressDialog.dismiss();
+                                    (root.findViewById(R.id.llLoading)).setVisibility(View.GONE);
                                 }
                             });
                         }
