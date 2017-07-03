@@ -82,6 +82,7 @@ import static android.app.Activity.RESULT_OK;
  * Guide at http://manishkpr.webheavens.com/android-navigation-drawer-example-using-fragments/
  */
 
+@SuppressWarnings("deprecation")
 public class BookFragment extends Fragment implements OnMapReadyCallback, DirectionFinderListener {
     private boolean isBookAvailable = false;
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
@@ -317,9 +318,11 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mActivity = (FragmentActivity) activity;
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof Activity){
+            mActivity =(FragmentActivity) context;
+        }
     }
 
     private Emitter.Listener DriverListChange = new Emitter.Listener() {
