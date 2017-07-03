@@ -71,6 +71,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -94,6 +95,9 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     private List<Marker> destinationMarkers = new ArrayList<>();
     private List<Polyline> polylinePaths = new ArrayList<>();
     private ProgressDialog progressDialog;
+    private Date lastInSafeZone = new Date(System.currentTimeMillis());
+
+    private int TIME_IN_SWITCH_AREA = 15;
 
     private static final String[] LOCATION_PERMS = {
             android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -108,14 +112,12 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
 
     ViewGroup root = null;
     protected FragmentActivity mActivity;
-    Marker mMarker = null;
     LatLng currentLocation = null;
 
     Marker mMakerPickUp = null;
     Marker mMakerDestination = null;
 
     private Socket mSocket;
-
     {
         try {
             mSocket = IO.socket("http://thesisk13.ddns.net:3002/");
@@ -124,7 +126,6 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     }
 
     Socket mSocketControlCenter;
-
     {
         try {
             mSocketControlCenter = IO.socket("http://thesisk13.ddns.net:3003");
@@ -137,33 +138,6 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     AreaController areaController = new AreaController();
 
     Polygon currentPolygon = null;
-
-    public LatLng pickUpLocation = new LatLng(10.7622739, 106.6822471);
-
-    private class GetAddressSync extends AsyncTask<LatLng, Void, String> {
-
-        @Override
-        protected String doInBackground(LatLng... params) {
-            return getAddress(params[0].latitude, params[0].longitude);
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            ((LinearLayout) root.findViewById(R.id.llLoading)).setVisibility(View.GONE);
-
-            TextView tvPickUp = (TextView) root.findViewById(R.id.tvPickUp);
-            tvPickUp.setText(result);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            ((LinearLayout) root.findViewById(R.id.llLoading)).setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
-    }
 
     private boolean firstCofusGps = false;
 
@@ -181,17 +155,75 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
 //
 //            mMarker = mMap.addMarker(new MarkerOptions().position(loc));
             if ((mMap != null) && (firstCofusGps == false)) {
-                //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.0f));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.0f));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.0f));
+                //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.0f));
                 firstCofusGps = true;
             }
 
             LatLng b = new LatLng(location.getLatitude(), location.getLongitude());
+
+            if (!areaController.isOnSwitchArea(b)) {
+                lastInSafeZone = new Date(System.currentTimeMillis());
+            }
+
             if (areaController.canJoinQueuingZone(b)) {
-                getActivity().runOnUiThread(new Runnable() {
+                mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         //Toast.makeText(getActivity(), "Vào vùng ahihi", Toast.LENGTH_SHORT).show();
+                        ((TextView)mActivity.findViewById(R.id.tvQueueInformation))
+                                .setText(getResources().getText(R.string.join_queue_info));
+                    }
+                });
+            } else if (areaController.isOnWraningArea(b)) {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((TextView)mActivity.findViewById(R.id.tvQueueInformation))
+                                .setText(getResources().getText(R.string.in_warning_area_info));
+                    }
+                });
+            } else if (areaController.isOnSwitchArea(b)) {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String message = getResources().getText(R.string.in_switch_area_info).toString();
+                        long diff = (new Date(System.currentTimeMillis()).getTime() - lastInSafeZone.getTime()) / 1000;
+                        long timeLeft = TIME_IN_SWITCH_AREA - diff;
+
+                        if (timeLeft <= 0) {
+                            Button btnLeaveQueue = (Button) mActivity.findViewById(R.id.btnLeaveJoin);
+                            btnLeaveQueue.performClick();
+                            ((TextView)mActivity.findViewById(R.id.tvQueueInformation))
+                                    .setText(getResources().getText(R.string.join_queue_info));
+                        } else {
+                            message = message.replace("-x-", String.valueOf(timeLeft));
+                            ((TextView)mActivity.findViewById(R.id.tvQueueInformation))
+                                    .setText(message);
+                        }
+
+//                        final Handler handler = new Handler();
+//                        Runnable runnable = new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                ((TextView)mActivity.findViewById(R.id.tvQueueInformation))
+//                                        .setText(String.valueOf(count--));
+//                                if(count <= 0){
+//                                    //TODO
+//                                    handler.removeCallbacks(this);
+//                                }
+//                            }
+//                        };
+//
+//                        handler.postDelayed(runnable, 1000);
+                    }
+                });
+            } else {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((TextView)mActivity.findViewById(R.id.tvQueueInformation))
+                                .setText(getResources().getText(R.string.leave_queue_info));
                     }
                 });
             }

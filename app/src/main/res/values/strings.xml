@@ -61,5 +61,9 @@
     <string name="join_queue">Xếp hàng</string>
     <string name="leave_queue">Hủy hàng đợi</string>
     <string name="DRIVER_LEAVES">DRIVER_LEAVES</string>
+    <string name="join_queue_info">Đã vào khu vực xếp hàng, vui lòng tham gia hàng đợi</string>
+    <string name="in_warning_area_info">Bạn đang ở xa hàng đợi, vui lòng di chuyển vào khu vực hàng đợi</string>
+    <string name="in_switch_area_info">Bạn sẽ bị hủy xếp hàng sau -x- giây, vui lòng di chuyển vào khu vực hàng đợi</string>
+    <string name="leave_queue_info">Bạn đã ở ngoài khu vực xếp hàng, vui lòng xếp hàng</string>
 
 </resources>
