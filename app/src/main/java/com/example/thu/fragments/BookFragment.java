@@ -141,6 +141,8 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
 
     private boolean firstCofusGps = false;
 
+    private boolean isQueuing = false;
+
     private int CustomerGetInResultId = -1;
 
     //https://stackoverflow.com/questions/13756261/how-to-get-the-current-location-in-google-maps-android-api-v2
@@ -162,6 +164,12 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
 
             LatLng b = new LatLng(location.getLatitude(), location.getLongitude());
 
+//            if (isQueuing) {
+//                mActivity.findViewById(R.id.llWrapQueueInformation).setVisibility(View.VISIBLE);
+//            } else {
+//                mActivity.findViewById(R.id.llWrapQueueInformation).setVisibility(View.GONE);
+//            }
+
             if (!areaController.isOnSwitchArea(b)) {
                 lastInSafeZone = new Date(System.currentTimeMillis());
             }
@@ -175,50 +183,44 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                                 .setText(getResources().getText(R.string.join_queue_info));
                     }
                 });
-            } else if (areaController.isOnWraningArea(b)) {
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((TextView)mActivity.findViewById(R.id.tvQueueInformation))
-                                .setText(getResources().getText(R.string.in_warning_area_info));
-                    }
-                });
-            } else if (areaController.isOnSwitchArea(b)) {
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String message = getResources().getText(R.string.in_switch_area_info).toString();
-                        long diff = (new Date(System.currentTimeMillis()).getTime() - lastInSafeZone.getTime()) / 1000;
-                        long timeLeft = TIME_IN_SWITCH_AREA - diff;
 
-                        if (timeLeft <= 0) {
-                            Button btnLeaveQueue = (Button) mActivity.findViewById(R.id.btnLeaveJoin);
-                            btnLeaveQueue.performClick();
+                mActivity.findViewById(R.id.llLoadingQueue).setVisibility(View.GONE);
+                mActivity.findViewById(R.id.llWrapQueueInformation).setVisibility(View.VISIBLE);
+
+                if (!isQueuing) {
+                    return;
+                }
+
+                if (areaController.isOnWraningArea(b)) {
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
                             ((TextView)mActivity.findViewById(R.id.tvQueueInformation))
-                                    .setText(getResources().getText(R.string.join_queue_info));
-                        } else {
-                            message = message.replace("-x-", String.valueOf(timeLeft));
-                            ((TextView)mActivity.findViewById(R.id.tvQueueInformation))
-                                    .setText(message);
+                                    .setText(getResources().getText(R.string.in_warning_area_info));
                         }
+                    });
+                } else if (areaController.isOnSwitchArea(b)) {
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String message = getResources().getText(R.string.in_switch_area_info).toString();
+                            long diff = (new Date(System.currentTimeMillis()).getTime() - lastInSafeZone.getTime()) / 1000;
+                            long timeLeft = TIME_IN_SWITCH_AREA - diff;
 
-//                        final Handler handler = new Handler();
-//                        Runnable runnable = new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                ((TextView)mActivity.findViewById(R.id.tvQueueInformation))
-//                                        .setText(String.valueOf(count--));
-//                                if(count <= 0){
-//                                    //TODO
-//                                    handler.removeCallbacks(this);
-//                                }
-//                            }
-//                        };
-//
-//                        handler.postDelayed(runnable, 1000);
-                    }
-                });
-            } else {
+                            if (timeLeft <= 0) {
+                                Button btnLeaveQueue = (Button) mActivity.findViewById(R.id.btnLeaveJoin);
+                                btnLeaveQueue.performClick();
+                                ((TextView)mActivity.findViewById(R.id.tvQueueInformation))
+                                        .setText(getResources().getText(R.string.join_queue_info));
+                            } else {
+                                message = message.replace("-x-", String.valueOf(timeLeft));
+                                ((TextView)mActivity.findViewById(R.id.tvQueueInformation))
+                                        .setText(message);
+                            }
+                        }
+                    });
+                }
+            }  else {
                 mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -226,6 +228,13 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                                 .setText(getResources().getText(R.string.leave_queue_info));
                     }
                 });
+
+                mActivity.findViewById(R.id.llWrapQueueInformation).setVisibility(View.GONE);
+
+                if (isQueuing) {
+                    Button btnLeaveQueue = (Button) mActivity.findViewById(R.id.btnLeaveJoin);
+                    btnLeaveQueue.performClick();
+                }
             }
         }
     };
@@ -286,6 +295,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                             v.setVisibility(View.GONE);
 
                             mActivity.findViewById(R.id.llLoadingQueue).setVisibility(View.VISIBLE);
+                            isQueuing = true;
 
                             finalMSocketControlCenter.emit(getResources().getString(R.string.DRIVER_JOIN), data);
                         } catch (JSONException e) {
@@ -304,6 +314,8 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                         mActivity.findViewById(R.id.llQueueInformation).setVisibility(View.GONE);
                         mActivity.findViewById(R.id.btnJoin).setVisibility(View.VISIBLE);
                         mActivity.findViewById(R.id.btnLeaveJoin).setVisibility(View.GONE);
+
+                        isQueuing = false;
                     }
                 });
 

@@ -252,13 +252,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/layout_bg"
-            android:minHeight="70dp"
             android:shadowRadius="10"
             android:padding="10dp"
             android:orientation="vertical">
             <LinearLayout
+                android:visibility="gone"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:id="@+id/llWrapQueueInformation"
+                android:orientation="horizontal">
                 <LinearLayout
                     android:id="@+id/llQueueInformation"
                     android:visibility="gone"
