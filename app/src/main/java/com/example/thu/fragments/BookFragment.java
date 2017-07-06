@@ -276,6 +276,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                 mSocketControlCenter.on("DRIVER_REQUESTION", CustomerRequest);
                 mSocketControlCenter.on("CUSTOMER_GET_IN_TAXI_RESULT", CustomerGetInResult);
                 mSocketControlCenter.on("DRIVER_LIST_CHANGE", DriverListChange);
+                mSocketControlCenter.on("DRIVER_LOCATION_UPDATE", DriverLocationUpdate);
                 mSocketControlCenter.connect();
 
                 Button btnJoinQueue = (Button) getActivity().findViewById(R.id.btnJoin);
@@ -368,6 +369,25 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
             mActivity =(FragmentActivity) context;
         }
     }
+
+    private Emitter.Listener DriverLocationUpdate = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            try {
+                if (currentLocation == null) {
+                    return;
+                }
+                JSONObject data = new JSONObject();
+                data.put("_uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                data.put("lat", currentLocation.latitude);
+                data.put("lng", currentLocation.longitude);
+
+                mSocketControlCenter.emit(getResources().getString(R.string.DRIVER_LOCATION_UPDATE), data);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    };
 
     private Emitter.Listener DriverListChange = new Emitter.Listener() {
         @Override
@@ -782,6 +802,11 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     public void onDestroy() {
         super.onDestroy();
         mMapView.onDestroy();
+        mSocketControlCenter.off("INITIAL_AREAS", QueuingListener);
+        mSocketControlCenter.off("DRIVER_REQUESTION", CustomerRequest);
+        mSocketControlCenter.off("CUSTOMER_GET_IN_TAXI_RESULT", CustomerGetInResult);
+        mSocketControlCenter.off("DRIVER_LIST_CHANGE", DriverListChange);
+        mSocketControlCenter.off("DRIVER_LOCATION_UPDATE", DriverLocationUpdate);
         mSocketControlCenter.disconnect();
     }
 

@@ -1,9 +1,11 @@
 package com.example.thu.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,14 +39,24 @@ public class ChatFragment extends Fragment {
         return f;
     }
 
+    protected FragmentActivity mActivity;
+
     private Socket mSocket;
     {
         try {
             mSocket = IO.socket("http://thesisk13.ddns.net:3001/");
+            //mSocket = IO.socket(getResources().getString(R.string.socket_url));
         } catch (URISyntaxException e) {}
     }
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof Activity){
+            mActivity =(FragmentActivity) context;
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -60,7 +72,7 @@ public class ChatFragment extends Fragment {
 
                 JSONObject objData = new JSONObject();
                 try {
-                    objData.put("sender", mAuth.getCurrentUser().getEmail());
+                    objData.put("sender", mAuth.getCurrentUser().getUid());
                     objData.put("receiver", null);
                     objData.put("messageType", 1);
                     objData.put("message", etMessage.getText());
@@ -79,7 +91,7 @@ public class ChatFragment extends Fragment {
         mSocket.on("MESSAGE", new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
-                getActivity().runOnUiThread(new Runnable() {
+                mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -92,7 +104,7 @@ public class ChatFragment extends Fragment {
                 });
             }
         });
-        mSocket.emit("JOIN_CHAT", "huongthu1302@gmail.com");
+        mSocket.emit("JOIN_CHAT", mAuth.getCurrentUser().getUid());
         return root;
     }
 
@@ -101,7 +113,7 @@ public class ChatFragment extends Fragment {
             return;
         }
 
-        LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext().getSystemService
+        LayoutInflater inflater = (LayoutInflater) mActivity.getApplicationContext().getSystemService
                 (Context.LAYOUT_INFLATER_SERVICE);
 
         View viewMessage = null;

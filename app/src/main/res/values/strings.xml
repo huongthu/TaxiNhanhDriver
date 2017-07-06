@@ -13,7 +13,7 @@
     <string name="pickup">ĐIỂM ĐÓN KHÁCH</string>
     <string name="dropoff">ĐIỂM TRẢ KHÁCH</string>
     <string name="please_choose_dropoff">Vui lòng chọn điểm trả khách</string>
-    <string name="write_a_message">Nhập tin nhắn...</string>
+    <string name="write_a_message">Nhập tin nhắn…</string>
     <string name="lng_pickUp">Điểm đi:</string>
     <string name="lng_dropOff">Điểm đến:</string>
     <string name="auth_failed">Vui lòng kiểm tra lại thông tin đăng nhập</string>
@@ -24,6 +24,10 @@
     <string name="DRIVER_JOIN">DRIVER_JOINS</string>
     <string name="DRIVER_REQUESTION">DRIVER_REQUESTION</string>
     <string name="DRIVER_REQUESTION_RESULT">DRIVER_REQUESTION_RESULT</string>
+    <string name="DRIVER_LIST_CHANGE">DRIVER_LIST_CHANGE</string>
+    <string name="DRIVER_LOCATION_UPDATE">DRIVER_LOCATION_UPDATE</string>
+    <string name="CUSTOMER_GET_IN_TAXI_RESULT">CUSTOMER_GET_IN_TAXI_RESULT</string>
+    <string name="INITIAL_AREAS">INITIAL_AREAS</string>
 
     <string name="where_you_go">Bạn đi đâu</string>
     <string name="register">ĐĂNG KÝ</string>
@@ -56,7 +60,7 @@
     <string name="destination">Điểm đến</string>
     <string name="customer_get_in">Khách lên xe</string>
     <string name="customer_drop_off">Khách xuống xe</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="numberInQueue">Số thứ tự trong hàng đợi</string>
     <string name="join_queue">Xếp hàng</string>
     <string name="leave_queue">Hủy hàng đợi</string>
