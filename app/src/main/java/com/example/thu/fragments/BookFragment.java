@@ -413,6 +413,23 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
         }
     };
 
+    private void removeQueuingInfor() {
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    //mActivity.findViewById(R.id.llWrapQueueInformation).setVisibility(View.GONE);
+                    ((TextView)mActivity.findViewById(R.id.tvQueueIndex)).setText("");
+                    mActivity.findViewById(R.id.llQueueInformation).setVisibility(View.GONE);
+                    mActivity.findViewById(R.id.btnJoin).setVisibility(View.VISIBLE);
+                    mActivity.findViewById(R.id.btnLeaveJoin).setVisibility(View.GONE);
+
+                    mActivity.findViewById(R.id.llLoadingQueue).setVisibility(View.GONE);
+                } catch (NullPointerException e) {}
+            }
+        });
+    }
+
     private Emitter.Listener CustomerGetInResult = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -433,7 +450,7 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
                         e.printStackTrace();
                     }
 
-                    final Dialog dialog = new Dialog(getActivity(), android.R.style.Theme_DeviceDefault_Wallpaper_NoTitleBar);
+                    final Dialog dialog = new Dialog(getActivity(), android.R.style.Theme_Black_NoTitleBar_Fullscreen);
                     dialog.setContentView(R.layout.activity_customer_request);
                     dialog.show();
 
@@ -497,12 +514,13 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
     };
 
     private void showPickUpDirection(final BookInfo bookInfo) {
-        getActivity().findViewById(R.id.llTitle).setVisibility(View.VISIBLE);
-        getActivity().findViewById(R.id.llControl).setVisibility(View.VISIBLE);
+        mActivity.findViewById(R.id.llTitle).setVisibility(View.VISIBLE);
+        mActivity.findViewById(R.id.llControl).setVisibility(View.VISIBLE);
+        mActivity.findViewById(R.id.llQueueControl).setVisibility(View.GONE);
         ((TextView) getActivity().findViewById(R.id.tvTitle)).setText("Đón khách");
         ((TextView) getActivity().findViewById(R.id.tvLocation)).setText(bookInfo.getPickUpLocation());
         ((TextView) getActivity().findViewById(R.id.tvCustomerName)).setText(bookInfo.getCustomerName());
-        ((TextView) getActivity().findViewById(R.id.tvPrice)).setText(String.format("%,.0f VNĐ", bookInfo.getFee()));
+        ((TextView) getActivity().findViewById(R.id.tvPrice)).setText(String.format("Khoảng cách: %,.0f VNĐ", bookInfo.getFee()));
 
         mMakerPickUp =  mMap.addMarker(new MarkerOptions()
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.locationa))
@@ -569,25 +587,54 @@ public class BookFragment extends Fragment implements OnMapReadyCallback, Direct
         });
     }
 
-    private void showDropOffDestination(BookInfo bookInfo) {
+    private void showDropOffDestination(final BookInfo bookInfo) {
         getActivity().findViewById(R.id.llTitle).setVisibility(View.VISIBLE);
         getActivity().findViewById(R.id.llControl).setVisibility(View.VISIBLE);
         ((TextView) getActivity().findViewById(R.id.tvTitle)).setText("Trả khách");
         ((TextView) getActivity().findViewById(R.id.tvLocation)).setText(bookInfo.getDestination());
         ((TextView) getActivity().findViewById(R.id.tvCustomerName)).setText(bookInfo.getCustomerName());
-        ((TextView) getActivity().findViewById(R.id.tvPrice)).setText(String.format("%,.0f VNĐ", bookInfo.getFee()));
+        ((TextView) getActivity().findViewById(R.id.tvPrice)).setText(String.format("Khoảng cách: %,.0f VNĐ", bookInfo.getFee()));
 
         sendRequest(bookInfo.getPKLatLng(), bookInfo.getDesLatLng());
         getActivity().findViewById(R.id.btnDestination).setVisibility(View.GONE);
         getActivity().findViewById(R.id.llGetIn).setVisibility(View.GONE);
         getActivity().findViewById(R.id.llDropOff).setVisibility(View.VISIBLE);
 
+        getActivity().findViewById(R.id.btnPickUp).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(bookInfo.getDesLatLng(), 15.0f));
+            }
+        });
+
         getActivity().findViewById(R.id.btnCustomerDropOff).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mSocketControlCenter.emit("CUSTOMER_GET_OUT_TAXI", CustomerGetInResultId);
+                hideDropOffDestination();
+                if (mMakerDestination != null) {
+                    mMakerDestination.remove();
+                }
+                if (mMakerPickUp != null) {
+                    mMakerPickUp.remove();
+                }
             }
         });
+    }
+
+    private void hideDropOffDestination() {
+        mActivity.findViewById(R.id.llTitle).setVisibility(View.GONE);
+        mActivity.findViewById(R.id.llControl).setVisibility(View.GONE);
+        mActivity.findViewById(R.id.llQueueControl).setVisibility(View.VISIBLE);
+
+        //remove navigation GPS
+        if (polylinePaths != null) {
+            for (Polyline polyline:polylinePaths ) {
+                polyline.remove();
+            }
+        }
+
+        removeQueuingInfor();
     }
 
 

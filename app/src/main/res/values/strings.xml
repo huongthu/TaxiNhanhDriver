@@ -69,5 +69,8 @@
     <string name="in_warning_area_info">Bạn đang ở xa hàng đợi, vui lòng di chuyển vào khu vực hàng đợi</string>
     <string name="in_switch_area_info">Bạn sẽ bị hủy xếp hàng sau -x- giây, vui lòng di chuyển vào khu vực hàng đợi</string>
     <string name="leave_queue_info">Bạn đã ở ngoài khu vực xếp hàng, vui lòng xếp hàng</string>
+    <string name="fare">Giá cuốc</string>
+    <string name="agree_book">Đồng ý cuốc</string>
+    <string name="distance">Khoảng cách:</string>
 
 </resources>
